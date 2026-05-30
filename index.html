@@ -1,1041 +1,507 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FarmBrain – Hydroponics Controller</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg:        #0a0f0a;
-  --bg2:       #0f160f;
-  --bg3:       #141f14;
-  --border:    #1e2e1e;
-  --green:     #39ff6e;
-  --green2:    #1aab46;
-  --green3:    #0d5c26;
-  --green-dim: #1d4a2a;
-  --red:       #ff4444;
-  --amber:     #ffaa00;
-  --text:      #c8e8c8;
-  --text-dim:  #5a7a5a;
-  --text-mute: #2d4a2d;
-}
-
-* { margin:0; padding:0; box-sizing:border-box; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* Scan-line effect */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
-  pointer-events: none;
-  z-index: 1000;
-}
-
-/* ── HEADER ── */
-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.2rem 2rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg2);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.logo {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 1.4rem;
-  letter-spacing: -0.02em;
-  color: var(--green);
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.logo-dot {
-  width: 8px; height: 8px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.7); }
-}
-
-.header-status {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  font-size: 0.72rem;
-  color: var(--text-dim);
-}
-
-.conn-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.conn-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--text-mute);
-}
-
-.conn-dot.online { background: var(--green); box-shadow: 0 0 6px var(--green); }
-.conn-dot.offline { background: var(--red); }
-
-#clock {
-  font-size: 0.85rem;
-  color: var(--text-dim);
-  letter-spacing: 0.05em;
-}
-
-/* ── EMERGENCY STOP ── */
-.emergency-btn {
-  background: transparent;
-  border: 1px solid var(--red);
-  color: var(--red);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  padding: 0.4rem 0.9rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-transform: uppercase;
-}
-
-.emergency-btn:hover {
-  background: var(--red);
-  color: #fff;
-  box-shadow: 0 0 20px rgba(255,68,68,0.4);
-}
-
-/* ── LAYOUT ── */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-}
-
-.grid-top {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-/* ── SENSOR CARDS ── */
-.sensor-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1.2rem 1.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.sensor-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; height: 100%;
-  background: var(--green3);
-}
-
-.sensor-label {
-  font-size: 0.65rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  margin-bottom: 0.5rem;
-}
-
-.sensor-value {
-  font-family: 'Syne', sans-serif;
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--green);
-  line-height: 1;
-}
-
-.sensor-unit {
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  margin-top: 0.2rem;
-}
-
-/* ── TABS ── */
-.tabs {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 1.5rem;
-}
-
-.tab {
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.8rem 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: -1px;
-}
-
-.tab:hover { color: var(--text); }
-.tab.active {
-  color: var(--green);
-  border-bottom-color: var(--green);
-}
-
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
-/* ── COMPONENT GRID ── */
-.component-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.8rem;
-}
-
-.component-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1.2rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-  user-select: none;
-}
-
-.component-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(57,255,110,0.05), transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.component-card:hover::after { opacity: 1; }
-.component-card:hover { border-color: var(--green3); }
-
-.component-card.on {
-  border-color: var(--green2);
-  background: linear-gradient(135deg, var(--bg2), var(--green-dim));
-}
-
-.component-card.on::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 0; height: 0;
-  border-style: solid;
-  border-width: 0 28px 28px 0;
-  border-color: transparent var(--green2) transparent transparent;
-}
-
-.comp-icon {
-  font-size: 1.4rem;
-  margin-bottom: 0.6rem;
-  display: block;
-}
-
-.comp-label {
-  font-size: 0.72rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.4rem;
-}
-
-.comp-state {
-  font-size: 0.65rem;
-  font-weight: 600;
-  letter-spacing: 0.15em;
-  color: var(--text-mute);
-  text-transform: uppercase;
-}
-
-.component-card.on .comp-state {
-  color: var(--green);
-}
-
-.comp-pin {
-  position: absolute;
-  bottom: 0.5rem;
-  right: 0.7rem;
-  font-size: 0.58rem;
-  color: var(--text-mute);
-}
-
-/* PWM Slider */
-.pwm-controls {
-  margin-top: 0.8rem;
-  display: none;
-}
-
-.component-card.on .pwm-controls,
-.component-card.pwm-type .pwm-controls {
-  display: block;
-}
-
-.pwm-slider {
-  width: 100%;
-  -webkit-appearance: none;
-  height: 3px;
-  background: var(--border);
-  outline: none;
-  margin-top: 0.3rem;
-}
-
-.pwm-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: var(--green);
-  cursor: pointer;
-}
-
-.pwm-label {
-  font-size: 0.6rem;
-  color: var(--text-dim);
-  display: flex;
-  justify-content: space-between;
-}
-
-/* ── SCHEDULE TABLE ── */
-.schedule-form {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 2fr auto;
-  gap: 0.8rem;
-  align-items: end;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.62rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.4rem;
-}
-
-.form-group select,
-.form-group input {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
-  padding: 0.5rem 0.7rem;
-  width: 100%;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.form-group select:focus,
-.form-group input:focus {
-  border-color: var(--green3);
-}
-
-.days-selector {
-  display: flex;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-}
-
-.day-btn {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
-  width: 28px; height: 28px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.day-btn.active {
-  background: var(--green3);
-  border-color: var(--green2);
-  color: var(--green);
-}
-
-.btn-primary {
-  background: var(--green3);
-  border: 1px solid var(--green2);
-  color: var(--green);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  padding: 0.5rem 1.2rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.btn-primary:hover {
-  background: var(--green2);
-  color: #000;
-}
-
-.schedule-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.75rem;
-}
-
-.schedule-table th {
-  text-align: left;
-  font-size: 0.6rem;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  padding: 0.6rem 1rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.schedule-table td {
-  padding: 0.7rem 1rem;
-  border-bottom: 1px solid var(--bg3);
-  color: var(--text);
-}
-
-.schedule-table tr:hover td {
-  background: var(--bg2);
-}
-
-.badge {
-  display: inline-block;
-  font-size: 0.58rem;
-  padding: 0.15rem 0.5rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.badge-on  { background: var(--green3); color: var(--green); border: 1px solid var(--green2); }
-.badge-off { background: var(--bg3);    color: var(--text-mute); border: 1px solid var(--border); }
-
-.btn-small {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.6rem;
-  padding: 0.2rem 0.5rem;
-  cursor: pointer;
-  transition: all 0.15s;
-  margin-left: 0.3rem;
-}
-
-.btn-small:hover { border-color: var(--red); color: var(--red); }
-
-/* ── LOG ── */
-.log-container {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  font-size: 0.72rem;
-  max-height: 500px;
-  overflow-y: auto;
-}
-
-.log-entry {
-  display: flex;
-  gap: 1rem;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--bg3);
-  align-items: flex-start;
-}
-
-.log-entry:hover { background: var(--bg3); }
-
-.log-time {
-  color: var(--text-mute);
-  white-space: nowrap;
-  font-size: 0.65rem;
-  min-width: 140px;
-}
-
-.log-level {
-  font-size: 0.62rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  min-width: 40px;
-}
-
-.log-level.INFO { color: var(--green2); }
-.log-level.WARN { color: var(--amber); }
-.log-level.ERROR { color: var(--red); }
-
-.log-msg { color: var(--text); }
-
-/* ── SETTINGS ── */
-.settings-section {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.settings-title {
-  font-family: 'Syne', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--green);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.pin-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0.6rem;
-}
-
-.pin-row {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.pin-name {
-  font-size: 0.68rem;
-  color: var(--text-dim);
-  min-width: 160px;
-}
-
-.pin-input {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.6rem;
-  width: 80px;
-  outline: none;
-}
-
-.pin-input:focus { border-color: var(--green3); }
-
-/* ── NOTIFICATION ── */
-.notification {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  background: var(--bg2);
-  border: 1px solid var(--green2);
-  color: var(--green);
-  font-size: 0.75rem;
-  padding: 0.8rem 1.2rem;
-  z-index: 9999;
-  transform: translateY(100px);
-  opacity: 0;
-  transition: all 0.3s;
-}
-
-.notification.show {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.notification.error {
-  border-color: var(--red);
-  color: var(--red);
-}
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); }
-::-webkit-scrollbar-thumb:hover { background: var(--green3); }
-
-/* ── RESPONSIVE ── */
-@media (max-width: 900px) {
-  .grid-top { grid-template-columns: 1fr 1fr; }
-  .schedule-form { grid-template-columns: 1fr 1fr; }
-  .container { padding: 1rem; }
-}
-
-@media (max-width: 600px) {
-  .grid-top { grid-template-columns: 1fr; }
-  header { flex-wrap: wrap; gap: 0.8rem; }
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welwitschia mirabilis – References</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sand:       #f0e8d5;
+      --sand-dark:  #ddd0b0;
+      --terra:      #7b3b1a;
+      --terra-mid:  #a04e25;
+      --bark:       #3d2b1a;
+      --bark-light: #5c3d22;
+      --stone:      #8a7a65;
+      --cream:      #faf6ee;
+      --accent:     #b8541a;
+      --img-accent: #4a6741;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(ellipse at 10% 0%,  rgba(160,78,37,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(123,59,26,0.07) 0%, transparent 50%);
+      color: var(--bark);
+      font-family: 'Source Serif 4', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--bark);
+      background-image: linear-gradient(135deg, #2a1a0a 0%, #3d2b1a 50%, #4a3220 100%);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+    header .eyebrow {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 300;
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--sand-dark);
+      margin-bottom: 0.6rem;
+    }
+    header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: var(--sand);
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+    header h1 span {
+      font-style: normal;
+      font-weight: 700;
+      color: #e8c89a;
+    }
+    header .subtitle {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 300;
+      color: var(--stone);
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* NAV TABS */
+    nav {
+      background: var(--sand);
+      border-bottom: 1px solid var(--sand-dark);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav a {
+      padding: 0.8rem 1.6rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--stone);
+      border-bottom: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    nav a:hover { color: var(--terra); border-bottom-color: var(--terra-mid); }
+
+    /* MAIN */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2.8rem 0 1.4rem;
+    }
+    .section-label span {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--stone);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--sand-dark);
+    }
+
+    /* REFERENCE CARD */
+    .ref-card {
+      background: var(--sand);
+      border: 1px solid var(--sand-dark);
+      border-radius: 6px;
+      padding: 1.4rem 1.6rem 1.3rem;
+      margin-bottom: 1rem;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .ref-card:hover {
+      box-shadow: 0 4px 20px rgba(61,43,26,0.1);
+      transform: translateY(-1px);
+    }
+    .ref-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 6px 0 0 6px;
+      background: var(--terra-mid);
+    }
+    .ref-card.img-card::before { background: var(--img-accent); }
+
+    .ref-key {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--terra);
+      margin-bottom: 0.4rem;
+    }
+    .ref-card.img-card .ref-key { color: var(--img-accent); }
+
+    .ref-full {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--bark-light);
+      margin-bottom: 0.5rem;
+    }
+    .ref-full em { font-style: italic; }
+
+    .ref-role {
+      font-size: 0.78rem;
+      color: var(--stone);
+      font-style: italic;
+      margin-bottom: 0.6rem;
+    }
+    .ref-link a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--accent);
+      word-break: break-all;
+      transition: color 0.15s;
+    }
+    .ref-link a:hover { color: var(--terra); }
+    .ref-link a::before { content: '↗'; font-size: 0.7rem; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bark);
+      color: var(--stone);
+      text-align: center;
+      padding: 1.4rem 1rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+    footer strong { color: var(--sand-dark); }
+  </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">
-    <div class="logo-dot"></div>
-    FarmBrain
-  </div>
-  <div class="header-status">
-    <div class="conn-indicator">
-      <div class="conn-dot" id="connDot"></div>
-      <span id="connLabel">Verbinde...</span>
-    </div>
-    <span id="clock">--:--:--</span>
-    <button class="emergency-btn" onclick="emergencyStop()">⛔ Notaus</button>
-  </div>
+  <p class="eyebrow">References &amp; Image Credits</p>
+  <h1><span>Welwitschia</span> mirabilis</h1>
+  <p class="subtitle">The Living Fossil of the Namib &nbsp;·&nbsp; HTWD Poster Project 2025/26</p>
 </header>
 
-<div class="container">
+<nav>
+  <a href="#primary">Primary Research</a>
+  <a href="#reviews">Reviews</a>
+  <a href="#specialist">Specialist Sources</a>
+  <a href="#figures">Figure Credits</a>
+</nav>
 
-  <!-- Sensor-Übersicht -->
-  <div class="grid-top">
-    <div class="sensor-card">
-      <div class="sensor-label">Wasserlevel</div>
-      <div class="sensor-value" id="sensorWater">--</div>
-      <div class="sensor-unit">V (A5)</div>
+<main>
+
+  <!-- PRIMARY RESEARCH -->
+  <div class="section-label" id="primary"><span>Primary Research Articles</span></div>
+
+  <div class="ref-card">
+    <div class="ref-key">Wan et al. 2021</div>
+    <div class="ref-full">
+      Wan, T., Liu, Z., Leitch, I. J. et al. (2021): The Welwitschia genome reveals a unique biology underpinning extreme longevity in deserts.
+      <em>Nature Communications</em> 12: 4247.
     </div>
-    <div class="sensor-card">
-      <div class="sensor-label">Schwimmschalter</div>
-      <div class="sensor-value" id="sensorFloat" style="font-size:1.2rem">--</div>
-      <div class="sensor-unit">IN1</div>
+    <div class="ref-role">Main source for: WGD dating (~86 Ma), LTR-retrotransposon dynamics, CHH methylation (35.7% — highest recorded in any plant), GC depletion (~29%), basal meristem protection, ARP/KNOX-1 co-expression, SAUR genes, HSPs, Clp proteases, NBS-LRR expansion.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1038/s41467-021-24528-4" target="_blank">doi.org/10.1038/s41467-021-24528-4</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Sun et al. 2026</div>
+    <div class="ref-full">
+      Sun, J.-J., Xia, X.-M., Liu, C. et al. (2026): Genomic divergence and sex-linked region of <em>Welwitschia mirabilis</em> revealed by whole-genome re-sequencing.
+      <em>Cell Reports</em> 45: 116836.
     </div>
-    <div class="sensor-card">
-      <div class="sensor-label">Leckage-Sensor</div>
-      <div class="sensor-value" id="sensorLeakage" style="font-size:1.2rem">--</div>
-      <div class="sensor-unit">A9</div>
+    <div class="ref-role">Main source for: population genomic GEA analysis; edaphic variables (soil sand fraction, available water capacity, gypsum content) as primary drivers of genetic differentiation.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1016/j.celrep.2025.116836" target="_blank">doi.org/10.1016/j.celrep.2025.116836</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Xu et al. 2025</div>
+    <div class="ref-full">
+      Xu, H., Song, Q., Wan, J., Han, J., Wang, Q. &amp; Wan, T. (2025): The Module WmABF1-1–WmMYB111 Manipulates the Leaf Senescence of <em>Welwitschia</em> by Integrative Regulation of Abscisic Acid Biosynthesis, Chlorophyll Degradation and Nitrogen Transportation.
+      <em>Plant Biotechnology Journal</em> 23: 5369–5386.
     </div>
-    <div class="sensor-card">
-      <div class="sensor-label">Drain-Sensor</div>
-      <div class="sensor-value" id="sensorDrain" style="font-size:1.2rem">--</div>
-      <div class="sensor-unit">A7</div>
+    <div class="ref-role">Main source for: ABA/MYB-controlled nitrogen remobilisation from ageing leaf tips to basal meristem.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1111/pbi.70290" target="_blank">doi.org/10.1111/pbi.70290</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Bombi et al. 2021</div>
+    <div class="ref-full">
+      Bombi, P., Salvi, D., Shuuya, T., Vignoli, L. &amp; Wassenaar, T. (2021): Climate change effects on desert ecosystems: A case study on the keystone species of the Namib Desert <em>Welwitschia mirabilis</em>.
+      <em>PLOS ONE</em> 16(11): e0259767.
     </div>
-    <div class="sensor-card">
-      <div class="sensor-label">Nachfüll-Sensor</div>
-      <div class="sensor-value" id="sensorRefill" style="font-size:1.2rem">--</div>
-      <div class="sensor-unit">A8</div>
+    <div class="ref-role">Source for: climate change projections and near-complete habitat loss forecasts for <em>W. mirabilis</em> within ~30 years (figure 5 in poster).</div>
+    <div class="ref-link"><a href="https://doi.org/10.1371/journal.pone.0259767" target="_blank">doi.org/10.1371/journal.pone.0259767</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Wiland-Szymańska et al. 2023</div>
+    <div class="ref-full">
+      Wiland-Szymańska, J., Kazimierczak-Grygiel, E., Drapikowski, P., Borowiak, K. &amp; Drapikowska, M. (2023): Does a gender of <em>Welwitschia mirabilis</em> plants influence their photosynthetic activity?
+      <em>PLOS ONE</em> 18(9): e0291122.
     </div>
-    <div class="sensor-card">
-      <div class="sensor-label">Intake Fan Tacho</div>
-      <div class="sensor-value" id="sensorTacho">--</div>
-      <div class="sensor-unit">RPM (IN0)</div>
+    <div class="ref-role">Source for: sex-specific differences in photosynthetic activity; elevated net photosynthesis rates in female plants during seed maturation.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1371/journal.pone.0291122" target="_blank">doi.org/10.1371/journal.pone.0291122</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Henschel et al. 2018</div>
+    <div class="ref-full">
+      Henschel, J. R., Wassenaar, T. D., Kanandjembo, A., Kilbourn Louw, M., Neef, G., Shuuya, T. &amp; Soderberg, K. (2018): Roots point to water sources of <em>Welwitschia mirabilis</em> in a hyperarid desert.
+      <em>Ecohydrology</em> 11: e2039.
+    </div>
+    <div class="ref-role">Source for: root architecture, isotopic tracing of water sources (rainwater principal source), fine roots in gypsum-bearing soil layers at 10–66 cm depth; fog and dew as supplemental water sources.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1002/eco.2039" target="_blank">doi.org/10.1002/eco.2039</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Krüger et al. 2017</div>
+    <div class="ref-full">
+      Krüger, G. H. J., Jordaan, A., Tiedt, L. R., Strasser, R. J., Kilbourn Louw, M. &amp; Berner, J. M. (2017): Opportunistic survival strategy of <em>Welwitschia mirabilis</em>: Recent anatomical and ecophysiological studies elucidating stomatal behaviour and photosynthetic potential.
+      <em>Botany</em> (manuscript ID cjb-2017-0095.R1).
+    </div>
+    <div class="ref-role">Source for: stomatal reactivity and bimodal gas-exchange pattern, root-hair regeneration within ~50 hours after irrigation, no measurable CAM activity in gas-exchange measurements.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">von Willert et al. 2005</div>
+    <div class="ref-full">
+      von Willert, D. J., Armbrüster, N., Drees, T. &amp; Zaborowski, M. (2005): <em>Welwitschia mirabilis</em>: CAM or not CAM — what is the answer?
+      <em>Functional Plant Biology</em> 32: 389–395.
+    </div>
+    <div class="ref-role">Source for: definitive C3/CAM classification — nocturnal CO₂ uptake confirmed but accounts for &lt;4% of daily carbon gain; high organic acid content (citrate dominant, up to 250 mmol/kg dry mass); extremely high photorespiration following air temperature.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1071/FP04206" target="_blank">doi.org/10.1071/FP04206</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Di Salvatore et al. 2013</div>
+    <div class="ref-full">
+      Di Salvatore, M., Carafa, A. M. &amp; Carratù, G. (2013): Growth and Reproductive Phenology of <em>Welwitschia mirabilis</em> Hook. F.
+      <em>The Open Plant Science Journal</em> 7: 39–46.
+    </div>
+    <div class="ref-role">Source for: 9–10 month reproductive cycle, male strobili opening 7–10 days before female, seed-to-ovule ratio (~0.30), embryo abortion as primary cause of low reproductive success.</div>
+    <div class="ref-link"><a href="https://doi.org/10.2174/1874294701307010039" target="_blank">doi.org/10.2174/1874294701307010039</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Ndilenga 2023</div>
+    <div class="ref-full">
+      Ndilenga, N. S. (2023): Pollination biology of <em>Welwitschia mirabilis</em> in the central Namib Desert, Namibia.
+      MSc Thesis, Stellenbosch University. Supervisors: Prof. A. G. Ellis, Dr. E. Marais &amp; Prof. G. Maggs-Kölling.
+    </div>
+    <div class="ref-role">Source for: entomophilous pollination mechanism, chemically specialised pollination droplet with fructose dominance, insect pollinator community in the central Namib.</div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="section-label" id="reviews"><span>Review Articles</span></div>
+
+  <div class="ref-card">
+    <div class="ref-key">Kumar &amp; Yau 2025</div>
+    <div class="ref-full">
+      Kumar, A. &amp; Yau, Y.-Y. (2025): Unraveling the Molecular Phylogeny of <em>Welwitschia mirabilis</em> Hook f.: A Millennia-Old Plant with Affinities to Pinaceae.
+      <em>LS – An International Journal of Life Sciences</em> 14(2): 135–157.
+    </div>
+    <div class="ref-role">Review article synthesising findings on WGD, LTR-retrotransposons, DNA methylation, morphology, root system, and C3/CAM classification.</div>
+  </div>
+
+  <!-- SPECIALIST & HISTORICAL -->
+  <div class="section-label" id="specialist"><span>Specialist &amp; Historical Sources</span></div>
+
+  <div class="ref-card">
+    <div class="ref-key">Weiß 2015/2018</div>
+    <div class="ref-full">
+      Weiß, J. (2015, last updated 2018): Die Welwitschie (<em>Welwitschia mirabilis</em>).
+      Mikroskopischer Arbeitskreis Bonn (MKB).
+    </div>
+    <div class="ref-role">Primary source for: macro- and microscopic anatomy of leaf, stem, and leaf-base tissue; cuticle (~15 µm, three-layered), transfusion tracheids, idioblasts, sclerenchyma fibres.</div>
+    <div class="ref-link"><a href="https://mikroskopie-bonn.de/bibliothek/botanik/137.html" target="_blank">mikroskopie-bonn.de/bibliothek/botanik/137.html</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Bornman et al. 1972</div>
+    <div class="ref-full">
+      Bornman, C. H., Elsworthy, J. A., Butler, V. &amp; Botha, C. E. J. (1972): <em>Welwitschia mirabilis</em>: observations on general habit, seed, seedling, and leaf characteristics.
+      <em>Madoqua II</em> 1: 54–62.
+    </div>
+    <div class="ref-role">Source for: cell types in leaf tissue — sclereids, transfusion tracheids, vessel elements (Figs. 12E–G).</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Bornman 1977</div>
+    <div class="ref-full">
+      Bornman, C. H. (1977): <em>Welwitschia mirabilis</em>: structural and functional anomalies.
+      <em>Madoqua</em>.
+    </div>
+    <div class="ref-role">Source for: origin of longitudinal leaf fissures; early CAM hypothesis.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Carlquist 2012</div>
+    <div class="ref-full">
+      Carlquist, S. (2012): Wood Anatomy of Gnetales in a Functional, Ecological, and Evolutionary Context.
+      <em>Aliso</em> 30(1): Article 5.
+    </div>
+    <div class="ref-role">Source for: secondary xylem with vessel elements (unique among gymnosperms), successive cambia, gelatinous walls in phloem fibres and sclereids (Figs. 19–24).</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Sykes 1911</div>
+    <div class="ref-full">
+      Sykes, M. G. (1911): The anatomy and morphology of the leaves and inflorescences of <em>Welwitschia mirabilis</em>.
+      [Cited via Weiß 2015/2018.]
+    </div>
+    <div class="ref-role">Historical primary source for: leaf anatomy, transfusion tracheids, three-layered cuticle structure.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Veste &amp; Herppich 2008</div>
+    <div class="ref-full">
+      Veste, M. &amp; Herppich, W. B. (2008): <em>Welwitschia mirabilis</em> – Eine ökophysiologische Betrachtung.
+      <em>Naturwissenschaftliche Rundschau</em> 61(12): 620–625.
+    </div>
+    <div class="ref-role">Source for: water balance, fog water contribution, C3/CAM classification, photorespiration reaching up to 80% of electron transport rate, photoinhibition under peak irradiance.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Jürgens et al. 2021</div>
+    <div class="ref-full">
+      Jürgens, N. et al. (2021): [Root architecture and water uptake of <em>Welwitschia mirabilis</em>.]
+      <em>Scientific Reports</em> 11: 2385.
+    </div>
+    <div class="ref-role">Source for: root architecture, observed rooting depth (&lt;140 cm in field study), water uptake from gypsum crust and petrocalcic horizons.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1038/s41598-021-81150-6" target="_blank">doi.org/10.1038/s41598-021-81150-6</a></div>
+  </div>
+
+  <!-- FIGURE CREDITS -->
+  <div class="section-label" id="figures"><span>Figure Credits</span></div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 1</div>
+    <div class="ref-full">Nhelia. Photograph of <em>Welwitschia mirabilis</em>. Pixabay.</div>
+    <div class="ref-link"><a href="https://pixabay.com" target="_blank">pixabay.com</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 2</div>
+    <div class="ref-full">
+      Ndilenga, N. S. (2023): Figure from: Pollination biology of <em>Welwitschia mirabilis</em> in the central Namib Desert, Namibia. MSc Thesis, Stellenbosch University.
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" onclick="showTab('control')">Steuerung</button>
-    <button class="tab" onclick="showTab('schedules')">Zeitpläne</button>
-    <button class="tab" onclick="showTab('logs')">Ereignisse</button>
-    <button class="tab" onclick="showTab('settings')">Einstellungen</button>
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 3</div>
+    <div class="ref-full">
+      Di Salvatore, M., Carafa, A. M. &amp; Carratù, G. (2013): Figure from: Growth and Reproductive Phenology of <em>Welwitschia mirabilis</em> Hook. F.
+      <em>The Open Plant Science Journal</em> 7: 39–46.
+    </div>
+    <div class="ref-link"><a href="https://doi.org/10.2174/1874294701307010039" target="_blank">doi.org/10.2174/1874294701307010039</a></div>
   </div>
 
-  <!-- Tab: Steuerung -->
-  <div class="tab-content active" id="tab-control">
-    <div class="component-grid" id="componentGrid">
-      {% for comp_id, comp in components.items() %}
-      <div class="component-card {% if comp.type == 'pwm' %}pwm-type{% endif %}"
-           id="card-{{ comp_id }}"
-           onclick="toggleComponent('{{ comp_id }}')">
-        <span class="comp-icon">{{ comp.icon }}</span>
-        <div class="comp-label">{{ comp.label }}</div>
-        <div class="comp-state" id="state-{{ comp_id }}">AUS</div>
-        {% if comp.type == 'pwm' %}
-        <div class="pwm-controls" onclick="event.stopPropagation()">
-          <div class="pwm-label">
-            <span>Intensität</span>
-            <span id="pwm-val-{{ comp_id }}">100%</span>
-          </div>
-          <input type="range" class="pwm-slider" min="0" max="100" value="100"
-                 id="pwm-{{ comp_id }}"
-                 oninput="updatePWM('{{ comp_id }}', this.value)">
-        </div>
-        {% endif %}
-        <div class="comp-pin" id="pin-{{ comp_id }}">{{ comp.pin or 'PIN ?' }}</div>
-      </div>
-      {% endfor %}
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 4</div>
+    <div class="ref-full">AI-generated image. Created with Google Gemini (2026).</div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 5</div>
+    <div class="ref-full">
+      Bombi, P., Salvi, D., Shuuya, T., Vignoli, L. &amp; Wassenaar, T. (2021): Figure from: Climate change effects on desert ecosystems: A case study on the keystone species of the Namib Desert <em>Welwitschia mirabilis</em>.
+      <em>PLOS ONE</em> 16(11): e0259767.
+    </div>
+    <div class="ref-link"><a href="https://doi.org/10.1371/journal.pone.0259767" target="_blank">doi.org/10.1371/journal.pone.0259767</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 6</div>
+    <div class="ref-full">
+      Krüger, G. H. J. et al. (2017): Figure from: Opportunistic survival strategy of <em>Welwitschia mirabilis</em>: Recent anatomical and ecophysiological studies elucidating stomatal behaviour and photosynthetic potential.
+      <em>Botany</em> (manuscript ID cjb-2017-0095.R1).
     </div>
   </div>
 
-  <!-- Tab: Zeitpläne -->
-  <div class="tab-content" id="tab-schedules">
-    <div class="schedule-form">
-      <div class="form-group">
-        <label>Komponente</label>
-        <select id="sch-component">
-          {% for comp_id, comp in components.items() %}
-          <option value="{{ comp_id }}">{{ comp.label }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Einschalten</label>
-        <input type="time" id="sch-on" value="06:00">
-      </div>
-      <div class="form-group">
-        <label>Ausschalten</label>
-        <input type="time" id="sch-off" value="22:00">
-      </div>
-      <div class="form-group">
-        <label>Tage</label>
-        <div class="days-selector">
-          <button class="day-btn active" data-day="0">Mo</button>
-          <button class="day-btn active" data-day="1">Di</button>
-          <button class="day-btn active" data-day="2">Mi</button>
-          <button class="day-btn active" data-day="3">Do</button>
-          <button class="day-btn active" data-day="4">Fr</button>
-          <button class="day-btn active" data-day="5">Sa</button>
-          <button class="day-btn active" data-day="6">So</button>
-        </div>
-      </div>
-      <button class="btn-primary" onclick="addSchedule()">+ Hinzufügen</button>
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 7</div>
+    <div class="ref-full">
+      Henschel, J. R. et al. (2018): Figure from: Roots point to water sources of <em>Welwitschia mirabilis</em> in a hyperarid desert.
+      <em>Ecohydrology</em> 11: e2039.
     </div>
-
-    <table class="schedule-table">
-      <thead>
-        <tr>
-          <th>Komponente</th>
-          <th>Einschalten</th>
-          <th>Ausschalten</th>
-          <th>Tage</th>
-          <th>Status</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="scheduleBody">
-        <tr><td colspan="6" style="color:var(--text-mute);padding:1.5rem 1rem;font-size:0.72rem">Keine Zeitpläne vorhanden</td></tr>
-      </tbody>
-    </table>
+    <div class="ref-link"><a href="https://doi.org/10.1002/eco.2039" target="_blank">doi.org/10.1002/eco.2039</a></div>
   </div>
 
-  <!-- Tab: Logs -->
-  <div class="tab-content" id="tab-logs">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem">
-      <span style="font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em">Ereignisprotokoll</span>
-      <button class="btn-primary" onclick="loadLogs()" style="font-size:0.6rem;padding:0.3rem 0.8rem">↻ Aktualisieren</button>
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 8</div>
+    <div class="ref-full">
+      von Willert, D. J., Armbrüster, N., Drees, T. &amp; Zaborowski, M. (2005): Figure from: <em>Welwitschia mirabilis</em>: CAM or not CAM — what is the answer?
+      <em>Functional Plant Biology</em> 32: 389–395.
     </div>
-    <div class="log-container" id="logContainer">
-      <div class="log-entry">
-        <span class="log-time">–</span>
-        <span class="log-level INFO">INFO</span>
-        <span class="log-msg">Warte auf Daten...</span>
-      </div>
-    </div>
+    <div class="ref-link"><a href="https://doi.org/10.1071/FP04206" target="_blank">doi.org/10.1071/FP04206</a></div>
   </div>
 
-  <!-- Tab: Einstellungen -->
-  <div class="tab-content" id="tab-settings">
-
-    <div class="settings-section">
-      <div class="settings-title">Verbindung</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
-        <div class="form-group">
-          <label>Modus</label>
-          <select id="conn-mode" onchange="toggleConnMode()">
-            <option value="serial">USB / Serial</option>
-            <option value="wifi">WiFi</option>
-          </select>
-        </div>
-        <div class="form-group" id="serial-port-group">
-          <label>COM-Port</label>
-          <input type="text" id="conn-serial-port" placeholder="z.B. COM4 oder /dev/ttyACM0">
-        </div>
-        <div class="form-group" id="wifi-host-group" style="display:none">
-          <label>WiFi Host (IP)</label>
-          <input type="text" id="conn-wifi-host" placeholder="192.168.1.100">
-        </div>
-        <div class="form-group" id="wifi-port-group" style="display:none">
-          <label>WiFi Port</label>
-          <input type="text" id="conn-wifi-port" value="8266">
-        </div>
-      </div>
-      <button class="btn-primary" onclick="saveConnection()">Verbindung speichern</button>
-    </div>
-
-    <div class="settings-section">
-      <div class="settings-title">Pin-Zuweisungen</div>
-      <p style="font-size:0.68rem;color:var(--text-dim);margin-bottom:1rem">
-        Trage hier die Pin-Nummern ein, sobald die Verkabelungsdatei gefunden wurde.
-        Controllino Maxi Relais-Pins: R0–R9, Analoge Pins: A0–A7, Digitale Pins: D0–D11
-      </p>
-      <div class="pin-grid">
-        {% for comp_id, comp in components.items() %}
-        <div class="pin-row">
-          <span class="pin-name">{{ comp.icon }} {{ comp.label }}</span>
-          <input type="text" class="pin-input" id="pinconf-{{ comp_id }}"
-                 placeholder="z.B. R0" value="{{ comp.pin or '' }}">
-        </div>
-        {% endfor %}
-        {% for sensor_id, sensor in sensors.items() %}
-        <div class="pin-row">
-          <span class="pin-name">📡 {{ sensor.label }}</span>
-          <input type="text" class="pin-input" id="pinconf-{{ sensor_id }}"
-                 placeholder="z.B. A0" value="{{ sensor.pin or '' }}">
-        </div>
-        {% endfor %}
-      </div>
-      <br>
-      <button class="btn-primary" onclick="savePins()">Pins speichern</button>
-    </div>
-
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 9</div>
+    <div class="ref-full">AI-generated image. Created with Claude Opus 4.6 (Anthropic, 2026); adapted from original source material.</div>
   </div>
 
-</div>
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 10</div>
+    <div class="ref-full">
+      AI-generated image. Created with Claude Opus 4.7 (Anthropic, 2026); adapted after figure from: Wuhan Botanical Garden — New Advances in Research on the Centennial Lan Genome and Adaptive Evolution Mechanism (2021).
+    </div>
+    <div class="ref-link"><a href="http://www.wbg.cas.cn/xwdt/tpxw/202107/t20210713_6131037.html" target="_blank">wbg.cas.cn — Original source article</a></div>
+  </div>
 
-<!-- Notification -->
-<div class="notification" id="notification"></div>
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 11</div>
+    <div class="ref-full">
+      AI-generated image. Created with Claude Opus 4.7 (Anthropic, 2026); adapted after figure from: Wuhan Botanical Garden — New Advances in Research on the Centennial Lan Genome and Adaptive Evolution Mechanism (2021).
+    </div>
+    <div class="ref-link"><a href="http://www.wbg.cas.cn/xwdt/tpxw/202107/t20210713_6131037.html" target="_blank">wbg.cas.cn — Original source article</a></div>
+  </div>
 
-<script>
-const COMPONENTS = {{ components | tojson }};
-const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 12</div>
+    <div class="ref-full">
+      Dead trees in Dead Vlei, Sossusvlei, Namib Desert, Namibia. Stock photograph.
+    </div>
+    <div class="ref-link"><a href="https://www.istockphoto.com/de/foto/tote-b%C3%A4ume-in-dead-vlei-sossusvlei-namib-w%C3%BCste-namibia-gm2189756921-608191056" target="_blank">iStockphoto — gm2189756921</a></div>
+  </div>
 
-// ─── TABS ───
-function showTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    const names = ['control','schedules','logs','settings'];
-    t.classList.toggle('active', names[i] === name);
-  });
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'logs') loadLogs();
-  if (name === 'schedules') loadSchedules();
-}
+</main>
 
-// ─── NOTIFICATION ───
-function notify(msg, error=false) {
-  const n = document.getElementById('notification');
-  n.textContent = msg;
-  n.className = 'notification show' + (error ? ' error' : '');
-  setTimeout(() => n.className = 'notification', 2500);
-}
+<footer>
+  <strong>Welwitschia mirabilis – The Living Fossil of the Namib</strong><br>
+  HTWD Poster Project 2025/26 &nbsp;·&nbsp; References compiled May 2026
+</footer>
 
-// ─── STATUS POLLING ───
-async function fetchStatus() {
-  try {
-    const r = await fetch('/api/status');
-    const d = await r.json();
-
-    // Verbindung
-    const dot = document.getElementById('connDot');
-    const lbl = document.getElementById('connLabel');
-    dot.className = 'conn-dot ' + (d.connected ? 'online' : 'offline');
-    lbl.textContent = d.connected
-      ? `Verbunden · ${d.port || d.comm_mode}`
-      : `Nicht verbunden (${d.comm_mode})`;
-
-    // Uhr
-    document.getElementById('clock').textContent = d.time;
-
-    // Sensorwerte
-    document.getElementById('sensorWater').textContent =
-      d.sensors?.WaterLevel?.value || '--';
-    document.getElementById('sensorFloat').textContent =
-      d.sensors?.FloatSwitch?.value === '1' ? 'AKTIV' :
-      d.sensors?.FloatSwitch?.value === '0' ? 'INAKTIV' : '--';
-    document.getElementById('sensorLeakage').textContent =
-      d.sensors?.LeakageSensor?.value === '1' ? '⚠️ LECK' :
-      d.sensors?.LeakageSensor?.value === '0' ? 'OK' : '--';
-    document.getElementById('sensorDrain').textContent =
-      d.sensors?.DrainSensor?.value || '--';
-    document.getElementById('sensorRefill').textContent =
-      d.sensors?.RefillSensor?.value === '1' ? 'VOLL' :
-      d.sensors?.RefillSensor?.value === '0' ? 'LEER' : '--';
-    document.getElementById('sensorTacho').textContent =
-      d.sensors?.IntakeFanTacho?.value || '--';
-
-    // Komponenten
-    for (const [id, state] of Object.entries(d.components)) {
-      const card = document.getElementById('card-' + id);
-      const stateEl = document.getElementById('state-' + id);
-      if (!card || !stateEl) continue;
-
-      const on = state.state === 1;
-      card.classList.toggle('on', on);
-      stateEl.textContent = on ? 'EIN' : 'AUS';
-
-      const slider = document.getElementById('pwm-' + id);
-      if (slider) {
-        slider.value = state.intensity;
-        document.getElementById('pwm-val-' + id).textContent = state.intensity + '%';
-      }
-    }
-  } catch(e) {
-    document.getElementById('connLabel').textContent = 'Verbindungsfehler';
-  }
-}
-
-// ─── TOGGLE COMPONENT ───
-async function toggleComponent(compId) {
-  try {
-    const r = await fetch(`/api/component/${compId}/toggle`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
-    const d = await r.json();
-    const label = COMPONENTS[compId]?.label || compId;
-    notify(`${label}: ${d.state ? 'EIN' : 'AUS'}`);
-    fetchStatus();
-  } catch(e) { notify('Fehler!', true); }
-}
-
-// ─── PWM ───
-function updatePWM(compId, value) {
-  document.getElementById('pwm-val-' + compId).textContent = value + '%';
-  clearTimeout(window._pwmTimer);
-  window._pwmTimer = setTimeout(async () => {
-    const card = document.getElementById('card-' + compId);
-    const isOn = card.classList.contains('on');
-    if (!isOn) return;
-    await fetch(`/api/component/${compId}/set`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ state: 1, intensity: parseInt(value) })
-    });
-  }, 300);
-}
-
-// ─── EMERGENCY STOP ───
-async function emergencyStop() {
-  if (!confirm('⚠️ Wirklich ALLE Komponenten sofort ausschalten?')) return;
-  await fetch('/api/emergency_stop', { method: 'POST' });
-  notify('⛔ NOTAUS ausgelöst!', true);
-  fetchStatus();
-}
-
-// ─── SCHEDULES ───
-document.querySelectorAll('.day-btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    btn.classList.toggle('active');
-  });
-});
-
-async function loadSchedules() {
-  const r = await fetch('/api/schedules');
-  const schedules = await r.json();
-  const tbody = document.getElementById('scheduleBody');
-
-  if (!schedules.length) {
-    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--text-mute);padding:1.5rem 1rem;font-size:0.72rem">Keine Zeitpläne vorhanden</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = schedules.map(s => {
-    const days = JSON.parse(s.days).map(d => DAYS[parseInt(d)]).join(' ');
-    const label = COMPONENTS[s.component_id]?.label || s.component_id;
-    return `
-      <tr>
-        <td>${label}</td>
-        <td>${s.time_on}</td>
-        <td>${s.time_off}</td>
-        <td style="font-size:0.65rem;color:var(--text-dim)">${days}</td>
-        <td><span class="badge ${s.active ? 'badge-on' : 'badge-off'}">${s.active ? 'Aktiv' : 'Pausiert'}</span></td>
-        <td>
-          <button class="btn-small" onclick="toggleSchedule(${s.id})">⏸</button>
-          <button class="btn-small" onclick="deleteSchedule(${s.id})">✕</button>
-        </td>
-      </tr>`;
-  }).join('');
-}
-
-async function addSchedule() {
-  const activeDays = [...document.querySelectorAll('.day-btn.active')].map(b => b.dataset.day);
-  if (!activeDays.length) { notify('Bitte mindestens einen Tag auswählen', true); return; }
-
-  const data = {
-    component_id: document.getElementById('sch-component').value,
-    time_on:  document.getElementById('sch-on').value,
-    time_off: document.getElementById('sch-off').value,
-    days: activeDays
-  };
-
-  const r = await fetch('/api/schedules', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
-  const d = await r.json();
-  if (d.success) { notify('Zeitplan gespeichert'); loadSchedules(); }
-}
-
-async function deleteSchedule(id) {
-  await fetch(`/api/schedules/${id}`, { method: 'DELETE' });
-  notify('Zeitplan gelöscht');
-  loadSchedules();
-}
-
-async function toggleSchedule(id) {
-  await fetch(`/api/schedules/${id}/toggle`, { method: 'POST' });
-  loadSchedules();
-}
-
-// ─── LOGS ───
-async function loadLogs() {
-  const r = await fetch('/api/logs');
-  const logs = await r.json();
-  document.getElementById('logContainer').innerHTML = logs.map(l => `
-    <div class="log-entry">
-      <span class="log-time">${l.created_at.replace('T',' ').substring(0,19)}</span>
-      <span class="log-level ${l.level}">${l.level}</span>
-      <span class="log-msg">${l.message}</span>
-    </div>`).join('') || '<div class="log-entry"><span class="log-msg" style="color:var(--text-mute)">Keine Einträge</span></div>';
-}
-
-// ─── SETTINGS ───
-function toggleConnMode() {
-  const mode = document.getElementById('conn-mode').value;
-  document.getElementById('serial-port-group').style.display = mode === 'serial' ? '' : 'none';
-  document.getElementById('wifi-host-group').style.display  = mode === 'wifi'   ? '' : 'none';
-  document.getElementById('wifi-port-group').style.display  = mode === 'wifi'   ? '' : 'none';
-}
-
-async function saveConnection() {
-  const mode = document.getElementById('conn-mode').value;
-  const body = { mode };
-  if (mode === 'serial') body.port = document.getElementById('conn-serial-port').value;
-  else {
-    body.host = document.getElementById('conn-wifi-host').value;
-    body.port = parseInt(document.getElementById('conn-wifi-port').value);
-  }
-  const r = await fetch('/api/config/connection', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-  const d = await r.json();
-  if (d.success) notify('Verbindung gespeichert');
-}
-
-async function savePins() {
-  const pins = {};
-  document.querySelectorAll('[id^="pinconf-"]').forEach(inp => {
-    const id = inp.id.replace('pinconf-', '');
-    if (inp.value) pins[id] = inp.value;
-  });
-  const r = await fetch('/api/config/pins', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(pins) });
-  const d = await r.json();
-  if (d.success) { notify('Pin-Konfiguration gespeichert'); fetchStatus(); }
-}
-
-// ─── INIT ───
-fetchStatus();
-setInterval(fetchStatus, 3000);
-</script>
 </body>
 </html>
