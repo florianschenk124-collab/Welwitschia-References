@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welwitschia mirabilis – References</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Serif+4:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --sand:       #f0e8d5;
+      --sand-dark:  #ddd0b0;
+      --terra:      #7b3b1a;
+      --terra-mid:  #a04e25;
+      --bark:       #3d2b1a;
+      --bark-light: #5c3d22;
+      --stone:      #8a7a65;
+      --cream:      #faf6ee;
+      --accent:     #b8541a;
+      --img-accent: #4a6741;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(ellipse at 10% 0%,  rgba(160,78,37,0.08) 0%, transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(123,59,26,0.07) 0%, transparent 50%);
+      color: var(--bark);
+      font-family: 'Source Serif 4', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--bark);
+      background-image: linear-gradient(135deg, #2a1a0a 0%, #3d2b1a 50%, #4a3220 100%);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.025'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+    header .eyebrow {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 300;
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--sand-dark);
+      margin-bottom: 0.6rem;
+    }
+    header h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-style: italic;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      color: var(--sand);
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+    header h1 span {
+      font-style: normal;
+      font-weight: 700;
+      color: #e8c89a;
+    }
+    header .subtitle {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 300;
+      color: var(--stone);
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* NAV TABS */
+    nav {
+      background: var(--sand);
+      border-bottom: 1px solid var(--sand-dark);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    nav a {
+      padding: 0.8rem 1.6rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--stone);
+      border-bottom: 3px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    nav a:hover { color: var(--terra); border-bottom-color: var(--terra-mid); }
+
+    /* MAIN */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    /* SECTION LABEL */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 2.8rem 0 1.4rem;
+    }
+    .section-label span {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 300;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--stone);
+      white-space: nowrap;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--sand-dark);
+    }
+
+    /* REFERENCE CARD */
+    .ref-card {
+      background: var(--sand);
+      border: 1px solid var(--sand-dark);
+      border-radius: 6px;
+      padding: 1.4rem 1.6rem 1.3rem;
+      margin-bottom: 1rem;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .ref-card:hover {
+      box-shadow: 0 4px 20px rgba(61,43,26,0.1);
+      transform: translateY(-1px);
+    }
+    .ref-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 6px 0 0 6px;
+      background: var(--terra-mid);
+    }
+    .ref-card.img-card::before { background: var(--img-accent); }
+
+    .ref-key {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--terra);
+      margin-bottom: 0.4rem;
+    }
+    .ref-card.img-card .ref-key { color: var(--img-accent); }
+
+    .ref-full {
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: var(--bark-light);
+      margin-bottom: 0.5rem;
+    }
+    .ref-full em { font-style: italic; }
+
+    .ref-role {
+      font-size: 0.78rem;
+      color: var(--stone);
+      font-style: italic;
+      margin-bottom: 0.6rem;
+    }
+    .ref-link a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dotted var(--accent);
+      word-break: break-all;
+      transition: color 0.15s;
+    }
+    .ref-link a:hover { color: var(--terra); }
+    .ref-link a::before { content: '↗'; font-size: 0.7rem; }
+
+    /* FOOTER */
+    footer {
+      background: var(--bark);
+      color: var(--stone);
+      text-align: center;
+      padding: 1.4rem 1rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+    footer strong { color: var(--sand-dark); }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">References &amp; Image Credits</p>
+  <h1><span>Welwitschia</span> mirabilis</h1>
+  <p class="subtitle">The Living Fossil of the Namib &nbsp;·&nbsp; HTWD Poster Project 2025/26</p>
+</header>
+
+<nav>
+  <a href="#primary">Primary Research</a>
+  <a href="#reviews">Reviews</a>
+  <a href="#specialist">Specialist Sources</a>
+  <a href="#figures">Figure Credits</a>
+</nav>
+
+<main>
+
+  <!-- PRIMARY RESEARCH -->
+  <div class="section-label" id="primary"><span>Primary Research Articles</span></div>
+
+  <div class="ref-card">
+    <div class="ref-key">Wan et al. 2021</div>
+    <div class="ref-full">
+      Wan, T., Liu, Z., Leitch, I. J. et al. (2021): The Welwitschia genome reveals a unique biology underpinning extreme longevity in deserts.
+      <em>Nature Communications</em> 12: 4247.
+    </div>
+    <div class="ref-role">Main source for: WGD dating (~86 Ma), LTR-retrotransposon dynamics, CHH methylation (35.7% — highest recorded in any plant), GC depletion (~29%), basal meristem protection, ARP/KNOX-1 co-expression, SAUR genes, HSPs, Clp proteases, NBS-LRR expansion.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1038/s41467-021-24528-4" target="_blank">doi.org/10.1038/s41467-021-24528-4</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Sun et al. 2026</div>
+    <div class="ref-full">
+      Sun, J.-J., Xia, X.-M., Liu, C. et al. (2026): Genomic divergence and sex-linked region of <em>Welwitschia mirabilis</em> revealed by whole-genome re-sequencing.
+      <em>Cell Reports</em> 45: 116836.
+    </div>
+    <div class="ref-role">Main source for: population genomic GEA analysis; edaphic variables (soil sand fraction, available water capacity, gypsum content) as primary drivers of genetic differentiation.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1016/j.celrep.2025.116836" target="_blank">doi.org/10.1016/j.celrep.2025.116836</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Xu et al. 2025</div>
+    <div class="ref-full">
+      Xu, H., Song, Q., Wan, J., Han, J., Wang, Q. &amp; Wan, T. (2025): The Module WmABF1-1–WmMYB111 Manipulates the Leaf Senescence of <em>Welwitschia</em> by Integrative Regulation of Abscisic Acid Biosynthesis, Chlorophyll Degradation and Nitrogen Transportation.
+      <em>Plant Biotechnology Journal</em> 23: 5369–5386.
+    </div>
+    <div class="ref-role">Main source for: ABA/MYB-controlled nitrogen remobilisation from ageing leaf tips to basal meristem.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1111/pbi.70290" target="_blank">doi.org/10.1111/pbi.70290</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Bombi et al. 2021</div>
+    <div class="ref-full">
+      Bombi, P., Salvi, D., Shuuya, T., Vignoli, L. &amp; Wassenaar, T. (2021): Climate change effects on desert ecosystems: A case study on the keystone species of the Namib Desert <em>Welwitschia mirabilis</em>.
+      <em>PLOS ONE</em> 16(11): e0259767.
+    </div>
+    <div class="ref-role">Source for: climate change projections and near-complete habitat loss forecasts for <em>W. mirabilis</em> within ~30 years (figure 5 in poster).</div>
+    <div class="ref-link"><a href="https://doi.org/10.1371/journal.pone.0259767" target="_blank">doi.org/10.1371/journal.pone.0259767</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Wiland-Szymańska et al. 2023</div>
+    <div class="ref-full">
+      Wiland-Szymańska, J., Kazimierczak-Grygiel, E., Drapikowski, P., Borowiak, K. &amp; Drapikowska, M. (2023): Does a gender of <em>Welwitschia mirabilis</em> plants influence their photosynthetic activity?
+      <em>PLOS ONE</em> 18(9): e0291122.
+    </div>
+    <div class="ref-role">Source for: sex-specific differences in photosynthetic activity; elevated net photosynthesis rates in female plants during seed maturation.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1371/journal.pone.0291122" target="_blank">doi.org/10.1371/journal.pone.0291122</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Henschel et al. 2018</div>
+    <div class="ref-full">
+      Henschel, J. R., Wassenaar, T. D., Kanandjembo, A., Kilbourn Louw, M., Neef, G., Shuuya, T. &amp; Soderberg, K. (2018): Roots point to water sources of <em>Welwitschia mirabilis</em> in a hyperarid desert.
+      <em>Ecohydrology</em> 11: e2039.
+    </div>
+    <div class="ref-role">Source for: root architecture, isotopic tracing of water sources (rainwater principal source), fine roots in gypsum-bearing soil layers at 10–66 cm depth; fog and dew as supplemental water sources.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1002/eco.2039" target="_blank">doi.org/10.1002/eco.2039</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Krüger et al. 2017</div>
+    <div class="ref-full">
+      Krüger, G. H. J., Jordaan, A., Tiedt, L. R., Strasser, R. J., Kilbourn Louw, M. &amp; Berner, J. M. (2017): Opportunistic survival strategy of <em>Welwitschia mirabilis</em>: Recent anatomical and ecophysiological studies elucidating stomatal behaviour and photosynthetic potential.
+      <em>Botany</em> (manuscript ID cjb-2017-0095.R1).
+    </div>
+    <div class="ref-role">Source for: stomatal reactivity and bimodal gas-exchange pattern, root-hair regeneration within ~50 hours after irrigation, no measurable CAM activity in gas-exchange measurements.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">von Willert et al. 2005</div>
+    <div class="ref-full">
+      von Willert, D. J., Armbrüster, N., Drees, T. &amp; Zaborowski, M. (2005): <em>Welwitschia mirabilis</em>: CAM or not CAM — what is the answer?
+      <em>Functional Plant Biology</em> 32: 389–395.
+    </div>
+    <div class="ref-role">Source for: definitive C3/CAM classification — nocturnal CO₂ uptake confirmed but accounts for &lt;4% of daily carbon gain; high organic acid content (citrate dominant, up to 250 mmol/kg dry mass); extremely high photorespiration following air temperature.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1071/FP04206" target="_blank">doi.org/10.1071/FP04206</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Di Salvatore et al. 2013</div>
+    <div class="ref-full">
+      Di Salvatore, M., Carafa, A. M. &amp; Carratù, G. (2013): Growth and Reproductive Phenology of <em>Welwitschia mirabilis</em> Hook. F.
+      <em>The Open Plant Science Journal</em> 7: 39–46.
+    </div>
+    <div class="ref-role">Source for: 9–10 month reproductive cycle, male strobili opening 7–10 days before female, seed-to-ovule ratio (~0.30), embryo abortion as primary cause of low reproductive success.</div>
+    <div class="ref-link"><a href="https://doi.org/10.2174/1874294701307010039" target="_blank">doi.org/10.2174/1874294701307010039</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Ndilenga 2023</div>
+    <div class="ref-full">
+      Ndilenga, N. S. (2023): Pollination biology of <em>Welwitschia mirabilis</em> in the central Namib Desert, Namibia.
+      MSc Thesis, Stellenbosch University. Supervisors: Prof. A. G. Ellis, Dr. E. Marais &amp; Prof. G. Maggs-Kölling.
+    </div>
+    <div class="ref-role">Source for: entomophilous pollination mechanism, chemically specialised pollination droplet with fructose dominance, insect pollinator community in the central Namib.</div>
+  </div>
+
+  <!-- REVIEWS -->
+  <div class="section-label" id="reviews"><span>Review Articles</span></div>
+
+  <div class="ref-card">
+    <div class="ref-key">Kumar &amp; Yau 2025</div>
+    <div class="ref-full">
+      Kumar, A. &amp; Yau, Y.-Y. (2025): Unraveling the Molecular Phylogeny of <em>Welwitschia mirabilis</em> Hook f.: A Millennia-Old Plant with Affinities to Pinaceae.
+      <em>LS – An International Journal of Life Sciences</em> 14(2): 135–157.
+    </div>
+    <div class="ref-role">Review article synthesising findings on WGD, LTR-retrotransposons, DNA methylation, morphology, root system, and C3/CAM classification.</div>
+  </div>
+
+  <!-- SPECIALIST & HISTORICAL -->
+  <div class="section-label" id="specialist"><span>Specialist &amp; Historical Sources</span></div>
+
+  <div class="ref-card">
+    <div class="ref-key">Weiß 2015/2018</div>
+    <div class="ref-full">
+      Weiß, J. (2015, last updated 2018): Die Welwitschie (<em>Welwitschia mirabilis</em>).
+      Mikroskopischer Arbeitskreis Bonn (MKB).
+    </div>
+    <div class="ref-role">Primary source for: macro- and microscopic anatomy of leaf, stem, and leaf-base tissue; cuticle (~15 µm, three-layered), transfusion tracheids, idioblasts, sclerenchyma fibres.</div>
+    <div class="ref-link"><a href="https://mikroskopie-bonn.de/bibliothek/botanik/137.html" target="_blank">mikroskopie-bonn.de/bibliothek/botanik/137.html</a></div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Bornman et al. 1972</div>
+    <div class="ref-full">
+      Bornman, C. H., Elsworthy, J. A., Butler, V. &amp; Botha, C. E. J. (1972): <em>Welwitschia mirabilis</em>: observations on general habit, seed, seedling, and leaf characteristics.
+      <em>Madoqua II</em> 1: 54–62.
+    </div>
+    <div class="ref-role">Source for: cell types in leaf tissue — sclereids, transfusion tracheids, vessel elements (Figs. 12E–G).</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Bornman 1977</div>
+    <div class="ref-full">
+      Bornman, C. H. (1977): <em>Welwitschia mirabilis</em>: structural and functional anomalies.
+      <em>Madoqua</em>.
+    </div>
+    <div class="ref-role">Source for: origin of longitudinal leaf fissures; early CAM hypothesis.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Carlquist 2012</div>
+    <div class="ref-full">
+      Carlquist, S. (2012): Wood Anatomy of Gnetales in a Functional, Ecological, and Evolutionary Context.
+      <em>Aliso</em> 30(1): Article 5.
+    </div>
+    <div class="ref-role">Source for: secondary xylem with vessel elements (unique among gymnosperms), successive cambia, gelatinous walls in phloem fibres and sclereids (Figs. 19–24).</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Sykes 1911</div>
+    <div class="ref-full">
+      Sykes, M. G. (1911): The anatomy and morphology of the leaves and inflorescences of <em>Welwitschia mirabilis</em>.
+      [Cited via Weiß 2015/2018.]
+    </div>
+    <div class="ref-role">Historical primary source for: leaf anatomy, transfusion tracheids, three-layered cuticle structure.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Veste &amp; Herppich 2008</div>
+    <div class="ref-full">
+      Veste, M. &amp; Herppich, W. B. (2008): <em>Welwitschia mirabilis</em> – Eine ökophysiologische Betrachtung.
+      <em>Naturwissenschaftliche Rundschau</em> 61(12): 620–625.
+    </div>
+    <div class="ref-role">Source for: water balance, fog water contribution, C3/CAM classification, photorespiration reaching up to 80% of electron transport rate, photoinhibition under peak irradiance.</div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-key">Jürgens et al. 2021</div>
+    <div class="ref-full">
+      Jürgens, N. et al. (2021): [Root architecture and water uptake of <em>Welwitschia mirabilis</em>.]
+      <em>Scientific Reports</em> 11: 2385.
+    </div>
+    <div class="ref-role">Source for: root architecture, observed rooting depth (&lt;140 cm in field study), water uptake from gypsum crust and petrocalcic horizons.</div>
+    <div class="ref-link"><a href="https://doi.org/10.1038/s41598-021-81150-6" target="_blank">doi.org/10.1038/s41598-021-81150-6</a></div>
+  </div>
+
+  <!-- FIGURE CREDITS -->
+  <div class="section-label" id="figures"><span>Figure Credits</span></div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 1</div>
+    <div class="ref-full">Nhelia. Photograph of <em>Welwitschia mirabilis</em>. Pixabay.</div>
+    <div class="ref-link"><a href="https://pixabay.com" target="_blank">pixabay.com</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 2</div>
+    <div class="ref-full">
+      Ndilenga, N. S. (2023): Figure from: Pollination biology of <em>Welwitschia mirabilis</em> in the central Namib Desert, Namibia. MSc Thesis, Stellenbosch University.
+    </div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 3</div>
+    <div class="ref-full">
+      Di Salvatore, M., Carafa, A. M. &amp; Carratù, G. (2013): Figure from: Growth and Reproductive Phenology of <em>Welwitschia mirabilis</em> Hook. F.
+      <em>The Open Plant Science Journal</em> 7: 39–46.
+    </div>
+    <div class="ref-link"><a href="https://doi.org/10.2174/1874294701307010039" target="_blank">doi.org/10.2174/1874294701307010039</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 4</div>
+    <div class="ref-full">AI-generated image. Created with Google Gemini (2026).</div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 5</div>
+    <div class="ref-full">
+      Bombi, P., Salvi, D., Shuuya, T., Vignoli, L. &amp; Wassenaar, T. (2021): Figure from: Climate change effects on desert ecosystems: A case study on the keystone species of the Namib Desert <em>Welwitschia mirabilis</em>.
+      <em>PLOS ONE</em> 16(11): e0259767.
+    </div>
+    <div class="ref-link"><a href="https://doi.org/10.1371/journal.pone.0259767" target="_blank">doi.org/10.1371/journal.pone.0259767</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 6</div>
+    <div class="ref-full">
+      Krüger, G. H. J. et al. (2017): Figure from: Opportunistic survival strategy of <em>Welwitschia mirabilis</em>: Recent anatomical and ecophysiological studies elucidating stomatal behaviour and photosynthetic potential.
+      <em>Botany</em> (manuscript ID cjb-2017-0095.R1).
+    </div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 7</div>
+    <div class="ref-full">
+      Henschel, J. R. et al. (2018): Figure from: Roots point to water sources of <em>Welwitschia mirabilis</em> in a hyperarid desert.
+      <em>Ecohydrology</em> 11: e2039.
+    </div>
+    <div class="ref-link"><a href="https://doi.org/10.1002/eco.2039" target="_blank">doi.org/10.1002/eco.2039</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 8</div>
+    <div class="ref-full">
+      von Willert, D. J., Armbrüster, N., Drees, T. &amp; Zaborowski, M. (2005): Figure from: <em>Welwitschia mirabilis</em>: CAM or not CAM — what is the answer?
+      <em>Functional Plant Biology</em> 32: 389–395.
+    </div>
+    <div class="ref-link"><a href="https://doi.org/10.1071/FP04206" target="_blank">doi.org/10.1071/FP04206</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 9</div>
+    <div class="ref-full">AI-generated image. Created with Claude Opus 4.6 (Anthropic, 2026); adapted from original source material.</div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 10</div>
+    <div class="ref-full">
+      AI-generated image. Created with Claude Opus 4.7 (Anthropic, 2026); adapted after figure from: Wuhan Botanical Garden — New Advances in Research on the Centennial Lan Genome and Adaptive Evolution Mechanism (2021).
+    </div>
+    <div class="ref-link"><a href="http://www.wbg.cas.cn/xwdt/tpxw/202107/t20210713_6131037.html" target="_blank">wbg.cas.cn — Original source article</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 11</div>
+    <div class="ref-full">
+      AI-generated image. Created with Claude Opus 4.7 (Anthropic, 2026); adapted after figure from: Wuhan Botanical Garden — New Advances in Research on the Centennial Lan Genome and Adaptive Evolution Mechanism (2021).
+    </div>
+    <div class="ref-link"><a href="http://www.wbg.cas.cn/xwdt/tpxw/202107/t20210713_6131037.html" target="_blank">wbg.cas.cn — Original source article</a></div>
+  </div>
+
+  <div class="ref-card img-card">
+    <div class="ref-key">Figure 12</div>
+    <div class="ref-full">
+      Dead trees in Dead Vlei, Sossusvlei, Namib Desert, Namibia. Stock photograph.
+    </div>
+    <div class="ref-link"><a href="https://www.istockphoto.com/de/foto/tote-b%C3%A4ume-in-dead-vlei-sossusvlei-namib-w%C3%BCste-namibia-gm2189756921-608191056" target="_blank">iStockphoto — gm2189756921</a></div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>Welwitschia mirabilis – The Living Fossil of the Namib</strong><br>
+  HTWD Poster Project 2025/26 &nbsp;·&nbsp; References compiled May 2026
+</footer>
+
+</body>
+</html>
